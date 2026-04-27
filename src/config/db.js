@@ -1,27 +1,22 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
-// Khởi tạo đối tượng sequelize để kết nối tới MySQL
 const sequelize = new Sequelize(
-  process.env.DB_NAME, // Tên database
-  process.env.DB_USER, // Username
-  process.env.DB_PASSWORD, // Password
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
-    dialect: "mysql",
-    logging: false, // Tắt console.log các câu SQL mặc định cho đỡ rối
+    port: process.env.DB_PORT, 
+    dialect: "mssql",
+    logging: false,
+    dialectOptions: {
+      options: {
+        encrypt: true,
+        trustServerCertificate: true,
+      },
+    },
   },
 );
 
-// Tạo hàm kiểm tra kết nối
-const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("🔗 Kết nối MySQL thành công qua Sequelize!");
-  } catch (error) {
-    console.error("❌ Lỗi kết nối MySQL:", error.message);
-  }
-};
-
-// Export ra để file khác có thể gọi
-module.exports = { sequelize, connectDB };
+module.exports = { sequelize };
