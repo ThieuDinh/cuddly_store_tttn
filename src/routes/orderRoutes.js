@@ -11,4 +11,5 @@ router.post("/", orderController.createOrder);
 // PUT    /api/orders/:id  → Cập nhật trạng thái đơn hàng
 router.put("/:id", orderController.updateOrder);
 
+router.get("/:id",orderController.getOrderById);
 module.exports = router;

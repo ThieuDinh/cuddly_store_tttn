@@ -21,9 +21,16 @@ const createOrder = async (req, res) => {
       customerAddress,
       note,
     } = req.body;
+    if(quantity<=0){
+      return res.status(400).json({ message: "Số lượng phải lớn hơn 0" });
+    }
     const product = await Product.findByPk(productId);
     if (!product) {
       return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+    }
+    const stock=product.stock;
+    if(quantity>stock){
+      return res.status(400).json({ message: "Số lượng không đủ để tạo đơn" });
     }
     const totalAmount = product.price * quantity;
     const newOrder = await Order.create({
@@ -35,6 +42,8 @@ const createOrder = async (req, res) => {
       customerAddress,
       note,
     });
+    const newStock =stock -quantity;
+    await product.update({stock:newStock});
 
     res.status(201).json(newOrder);
   } catch (error) {
@@ -58,8 +67,21 @@ const updateOrder = async (req, res) => {
   }
 };
 
+const getOrderById=async(req,res)=>{
+  try {
+    const order= await Order.findByPk(req.params.id,{ include:[{model:Product,as:"product"}]});
+
+    if(!order){
+      return res.status(404).json({message:"Không tìm thấy đơn hàng"});
+    }
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+}
 module.exports = {
   getAllOrders,
   createOrder,
   updateOrder,
+  getOrderById,
 };
